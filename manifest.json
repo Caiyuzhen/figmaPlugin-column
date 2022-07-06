@@ -1,0 +1,11 @@
+{
+  "name": "auto create column",
+  "id": "1126528227035633175",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": [
+    "figma",
+    "figjam"
+  ],
+  "ui": "ui.html"
+}

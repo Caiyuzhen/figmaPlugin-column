@@ -1,0 +1,30 @@
+
+<!-- figma 的 iframe 会渲染插件面板 -->
+<h1>创建并列图形</h1>
+<p>Count: <input id="count" type="number" value="5"></p>
+<button id="create">Create</button>
+<button id="cancel">Cancel</button>
+
+
+<script>
+
+	// 给 id 为 'create' 的按钮，绑定点击事件
+	document.getElementById('create').onclick = () => {
+	
+	  //获取输入框
+	  const textbox = document.getElementById('count');
+	  
+	  //获取输入框内的数值, 转化为整数
+	  const count = parseInt(textbox.value, 10);
+	  
+	  //发送 create-shapes 的消息给后台的沙箱！通讯的语法为：parent.postMessage({ pluginMessage:...
+	  parent.postMessage({ pluginMessage: { type: 'create-shapes', count } }, '*')
+	}
+	
+	// 给 id 为 'cancel' 的按钮，绑定点击事件
+	document.getElementById('cancel').onclick = () => {
+	  //发送 cancel 的消息给后台的沙箱！通讯的语法为：parent.postMessage({ pluginMessage:...
+	  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+	}
+
+</script>
