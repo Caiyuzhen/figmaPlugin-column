@@ -53,11 +53,16 @@
 	</div>
 
 </section>    
-<button id="create">Create</button>
-<button id="cancel">Cancel</button>
+
+<div class="buttonGroup">
+	<button id="create">Create</button>
+	<button id="cancel">Cancel</button>
+</div>
+
 
 
 <style type="text/css">
+
 	.display {
 		border: 1px solid rgb(102, 102, 102);
 		width: 12rem;
@@ -66,13 +71,41 @@
 		display: flex;
 		align-items: center;
 		padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+		margin-top: 12px;
 		gap:0.25rem;
 		/* background-image: url(./assets/icon_mergecells_outlined.svg); // 当成背景引入 */
 	}
 	input{
 		border: none;
+		width: 12rem;
+		border-radius:0.25rem;
+		padding: 0.5rem;
+	}
+	p{
+		font-weight: 800;
+	}
+	#create{
+		border: none !important;
+		border-radius: 1rem;
+		color: #fff;
+		background-color:#3370FF !important;
+		padding: 0.5rem 2rem 0.5rem 2rem;
+	}
+	#cancel{
+		border: none;
+		border-radius: 1rem;
+		background-color:rgb(217, 217, 217) !important;
+		padding: 0.5rem 2rem 0.5rem 2rem;
+	}
+	.buttonGroup{
+		display: flex;
+		gap:12px;
+		margin-top: 24px;
 	}
 </style>
+
+
+
 
 
 
@@ -84,36 +117,29 @@
         //获取第 1 个输入框
         const textbox1 = document.getElementById('rowCount');
         //获取输入框内的数值, 转化为整数
-        const rowCount = parseInt(textbox1.value, 10);
-        //发送 auto-create-column 的消息给后台的沙箱！通讯的语法为：parent.postMessage({ pluginMessage:...
-        parent.postMessage({ pluginMessage: { type: 'auto-create-column', rowCount } }, '*')
+        const rowCount = parseInt(textbox1.value,10)
 
 
         //获取第 2 个输入框
 		const textbox2 = document.getElementById('rowSpace');
         //获取输入框内的数值, 转化为整数
-        const rowSpace = parseInt(textbox2.value, 10);
-        //发送 auto-create-column 的消息给后台的沙箱！通讯的语法为：parent.postMessage({ pluginMessage:...
-        parent.postMessage({ pluginMessage: { type: 'auto-create-column', rowSpace } }, '*')
+		const rowSpace = parseInt(textbox2.value,10)
 	  
 	  
         //获取第 3 个输入框
 		const textbox3 = document.getElementById('colCount');
         //获取输入框内的数值, 转化为整数
-        const colCount = parseInt(textbox3.value, 10);
-        //发送 auto-create-column 的消息给后台的沙箱！通讯的语法为：parent.postMessage({ pluginMessage:...
-        parent.postMessage({ pluginMessage: { type: 'auto-create-column', colCount } }, '*')
+        const colCount = parseInt(textbox3.value,10)
 	  
 	  
         //获取第 4 个输入框
 		const textbox4 = document.getElementById('colSpace');
         //获取输入框内的数值, 转化为整数
-        const colSpace = parseInt(textbox4.value, 10);
-        //发送 auto-create-column 的消息给后台的沙箱！通讯的语法为：parent.postMessage({ pluginMessage:...
-        parent.postMessage({ pluginMessage: { type: 'auto-create-column', colSpace } }, '*')
+        const colSpace = parseInt(textbox4.value,10)
+
         
+		parent.postMessage({ pluginMessage: { type: 'auto-create-column', rowCount:rowCount, rowSpace:rowSpace, colCount:colCount, colSpace:colCount } }, '*')
         console.log( rowCount, rowSpace, colCount, colSpace )
-	  
 	}
 	
 	

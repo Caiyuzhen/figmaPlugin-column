@@ -3,15 +3,19 @@
 if (figma.editorType === 'figma') {
 
   // iframe 内渲染 UI ————————————————————————————————————————————————————————————————————
-  figma.showUI(__html__);
+  figma.showUI(__html__, {
+	width: 360,
+	height: 480,
+  })
 
+  
 	//创建一个空【列】
 	function createColumn() {
 		const cellPadding = 0
 		const grid = figma.createFrame() //创建个空的 frame
-		grid.layoutMode = "HORIZONTAL" //水平排列
+		grid.layoutMode = "VERTICAL" //水平排列
 		grid.counterAxisSizingMode = "AUTO" //自动布局
-		grid.name = "ROW"
+		grid.name = "Grid"
 		grid.clipsContent = false
 		grid.itemSpacing = cellPadding //0
 		grid.backgrounds = []
@@ -25,7 +29,7 @@ if (figma.editorType === 'figma') {
 	const frame = figma.createFrame() //创建个空的 frame
 	frame.layoutMode = "HORIZONTAL" //水平排列
 	frame.counterAxisSizingMode = "AUTO" //自动布局
-	frame.name = "ROW"
+	frame.name = "Row"
 	frame.clipsContent = false
 	frame.itemSpacing = cellPadding //0
 	frame.backgrounds = []
@@ -40,6 +44,8 @@ if (figma.editorType === 'figma') {
 
 		//获取当前选中的元素
 		const selectionEle = figma.currentPage.selection
+		console.log(selectionEle);
+
 
 		//如果没有选中元素, 则提示需要选中元素才能进行操作
 		if(!selectionEle){
@@ -47,17 +53,20 @@ if (figma.editorType === 'figma') {
 			return
 		}
 
+		console.log(selectionEle[0]);
 		//获得元素的父节点以及当前的位置
 		const { x, y, parent } = selectionEle[0]
 
 		//创建最外层的容器【列】, 并且设置容器的【位置】以及【行间距】
 		const list = createColumn()
-			list.x = x 	//移动到当前的 x 坐标
-			list.y = y	//移动到当前的 y 坐标
+			list.x = x 	//设置其 x 坐标
+			list.y = y	//设置其 y 坐标
+			console.log(list+"ok List")
 			list.itemSpacing = rowSpace  //让行间距 = 传入的参数
 
 		//把最外层的容器【列】,挂载到当前的【父节点】上
 		parent.appendChild(list)
+
 
 		//用选中的节点进行不断的复制，直到创建成为一个 table 的方法
 		if(selectionEle.length > 1){
@@ -83,6 +92,7 @@ if (figma.editorType === 'figma') {
 			//不断的复制第一行，直到达到【用户输入的数字】为止
 			for(let i =	1; i < rowCount; i++){
 				let rowClone = rowList.clone() //克隆当前的【第一行】
+				rowClone.itemSpacing = colSpace
 				list.appendChild(rowClone)
 			}
 		}
@@ -92,13 +102,20 @@ if (figma.editorType === 'figma') {
 		return
 	}
 
+
+
+
+
 	//调用 UI 层的通讯接口
 	figma.ui.onmessage = msg => {
 		/// 响应 create grid 事件
 		if (msg.type === 'auto-create-column') {
-		   const { rowCount, rowSpace, colCount, colSpace } = msg.config //从 msg 内解构赋值获得这几个参数
-		   //调用创建 Grid 的方法并传参
-		   createGrid(rowCount, rowSpace, colCount, colSpace)
+			console.log(msg)//获得了 msg 传来的数据
+			const { rowCount, rowSpace, colCount, colSpace } = msg//从 msg 内解构赋值获得这几个参数
+			console.log(rowCount, rowSpace, colCount, colSpace)
+			console.log("ok")
+			//调用创建 Grid 的方法并传参
+			createGrid(rowCount, rowSpace, colCount, colSpace)
 		}  
 	}
 }
