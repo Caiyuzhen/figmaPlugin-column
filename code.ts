@@ -31,6 +31,7 @@ if (figma.editorType === 'figma') {
 	frame.backgrounds = []
 	return frame
 	}
+	console.log("Done")
 
 
 	//创建网格的方法
@@ -94,8 +95,9 @@ if (figma.editorType === 'figma') {
 	//调用 UI 层的通讯接口
 	figma.ui.onmessage = msg => {
 		/// 响应 create grid 事件
-		if (msg.type === 'auto create column') {
-		   const { rowCount, rowSpace, colCount, colSpace } = msg.config //获得这几个参数
+		if (msg.type === 'auto-create-column') {
+		   const { rowCount, rowSpace, colCount, colSpace } = msg.config //从 msg 内解构赋值获得这几个参数
+		   //调用创建 Grid 的方法并传参
 		   createGrid(rowCount, rowSpace, colCount, colSpace)
 		}  
 	}

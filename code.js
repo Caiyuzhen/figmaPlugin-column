@@ -1,72 +1,88 @@
-// figma 插件类型
+// 如果是 figma 插件类型的话，开始执行以下的方法 ————————————————————————————————————————————————————————————————————
 if (figma.editorType === 'figma') {
-    // iframe 内渲染 UI
+    // iframe 内渲染 UI ————————————————————————————————————————————————————————————————————
     figma.showUI(__html__);
-    // 监听发生的消息​
-    // 从 HTML 页面中调用 "parent.postMessage "将触发这个回调。该回调信息将被传递给 "pluginMessage "的属性来发布信息
-    figma.ui.onmessage = msg => {
-        // 接收对应消息，进行处理: 区分从 HTML 产生的消息类型, 比如是 create-shapes 类型
-        if (msg.type === 'create-shapes') {
-            console.log('创建分栏中。。。');
-            // 定义一个节点数组，进行创建
-            const nodes = [];
-            //msg.count 为用户输入的数字，根据这个数字生成对应的矩形
-            for (let i = 0; i < msg.count; i++) {
-                // 通过 figma 的 createRectangle api 来创建一个矩形节点
-                const rect = figma.createRectangle();
-                // 修改其位置
-                rect.x = i * 150;
-                // 修改其填充色​
-                rect.fills = [{ type: 'SOLID', color: { r: 1, g: 0.5, b: 0 } }];
-                // 将创建后的矩形矩形添加到当前页面中
-                figma.currentPage.appendChild(rect);
-                // 添加到节点数组中​
-                nodes.push(rect);
-            }
-            // 选中全部新建的节点，并将 figma 窗口移动到对应位置, 让用户能够看到所有节点
-            figma.currentPage.selection = nodes;
-            figma.viewport.scrollAndZoomIntoView(nodes);
+    //创建一个空【列】
+    function createColumn() {
+        const cellPadding = 0;
+        const grid = figma.createFrame(); //创建个空的 frame
+        grid.layoutMode = "HORIZONTAL"; //水平排列
+        grid.counterAxisSizingMode = "AUTO"; //自动布局
+        grid.name = "ROW";
+        grid.clipsContent = false;
+        grid.itemSpacing = cellPadding; //0
+        grid.backgrounds = [];
+        return grid;
+    }
+    //创建一个空【行】 
+    function createRow() {
+        const cellPadding = 0;
+        const frame = figma.createFrame(); //创建个空的 frame
+        frame.layoutMode = "HORIZONTAL"; //水平排列
+        frame.counterAxisSizingMode = "AUTO"; //自动布局
+        frame.name = "ROW";
+        frame.clipsContent = false;
+        frame.itemSpacing = cellPadding; //0
+        frame.backgrounds = [];
+        return frame;
+    }
+    console.log("Done");
+    //创建网格的方法
+    function createGrid(rowCount, rowSpace, colCount, colSpace) {
+        console.log("创建网格中...");
+        //获取当前选中的元素
+        const selectionEle = figma.currentPage.selection;
+        //如果没有选中元素, 则提示需要选中元素才能进行操作
+        if (!selectionEle) {
+            figma.notify("请选中元素后再操作");
+            return;
         }
-        //关闭该插件。否则，该插件将会继续运行，显示屏幕底部的取消按钮。
-        figma.closePlugin();
-    };
-    // 如果插件没有持续运行则会执行此代码
-}
-else {
-    figma.showUI(__html__);
-    figma.ui.onmessage = msg => {
-        if (msg.type === 'create-shapes') {
-            const numberOfShapes = msg.count;
-            const nodes = [];
-            for (let i = 0; i < numberOfShapes; i++) {
-                const shape = figma.createShapeWithText();
-                // 你可以将 shapeType 设置为以下之一。正方形' | '椭圆' | '圆角矩形' | '钻石' | '三角形_上' | '三角形_下' | '平行四边形_右' | '平行四边形_左' 
-                shape.shapeType = 'ROUNDED_RECTANGLE';
-                shape.x = i * (shape.width + 200);
-                shape.fills = [{ type: 'SOLID', color: { r: 1, g: 0.5, b: 0 } }];
-                figma.currentPage.appendChild(shape);
-                nodes.push(shape);
-            }
-            ;
-            for (let i = 0; i < (numberOfShapes - 1); i++) {
-                const connector = figma.createConnector();
-                connector.strokeWeight = 8;
-                connector.connectorStart = {
-                    endpointNodeId: nodes[i].id,
-                    magnet: 'AUTO',
-                };
-                connector.connectorEnd = {
-                    endpointNodeId: nodes[i + 1].id,
-                    magnet: 'AUTO',
-                };
-            }
-            ;
-            figma.currentPage.selection = nodes;
-            figma.viewport.scrollAndZoomIntoView(nodes);
-            figma.ui.postMessage('啦啦啦'); //给 html Ui 层传递数据
+        //获得元素的父节点以及当前的位置
+        const { x, y, parent } = selectionEle[0];
+        //创建最外层的容器【列】, 并且设置容器的【位置】以及【行间距】
+        const list = createColumn();
+        list.x = x; //移动到当前的 x 坐标
+        list.y = y; //移动到当前的 y 坐标
+        list.itemSpacing = rowSpace; //让行间距 = 传入的参数
+        //把最外层的容器【列】,挂载到当前的【父节点】上
+        parent.appendChild(list);
+        //用选中的节点进行不断的复制，直到创建成为一个 table 的方法
+        if (selectionEle.length > 1) {
+            selectionEle.forEach(node => {
+                list.appendChild(node); //把遍历出来节点添加到容器中
+            });
         }
-        //确保在你完成后关闭该插件。否则，该插件将继续运行，显示屏幕底部的取消按钮。
-        figma.closePlugin();
+        else {
+            //创建一个【行】容器
+            const rowList = createRow();
+            //将选中的节点添加到第一【行】容器中
+            const cell = selectionEle[0];
+            rowList.appendChild(cell);
+            //不断的复制，并且添加到【第一行】容器中，直到达到【用户输入的数字】为止
+            for (let i = 1; i < colCount; i++) {
+                let colClone = cell.clone(); //克隆当前的节点,然后再放入【第一行】
+                rowList.appendChild(colClone);
+            }
+            rowList.itemSpacing = colSpace;
+            list.appendChild(rowList);
+            //不断的复制第一行，直到达到【用户输入的数字】为止
+            for (let i = 1; i < rowCount; i++) {
+                let rowClone = rowList.clone(); //克隆当前的【第一行】
+                list.appendChild(rowClone);
+            }
+        }
+        //选中上面新建的这个 list 对象, 并且将视图定位到这个对象的位置
+        figma.currentPage.selection = [list];
+        figma.viewport.scrollAndZoomIntoView([list]);
+        return;
+    }
+    //调用 UI 层的通讯接口
+    figma.ui.onmessage = msg => {
+        /// 响应 create grid 事件
+        if (msg.type === 'auto-create-column') {
+            const { rowCount, rowSpace, colCount, colSpace } = msg.config; //从 msg 内解构赋值获得这几个参数
+            //调用创建 Grid 的方法并传参
+            createGrid(rowCount, rowSpace, colCount, colSpace);
+        }
     };
 }
-;
